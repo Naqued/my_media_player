@@ -1,0 +1,112 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="my_windowsMediaPlayer.Mywindow"
+        Title="SiPaMaDaMedia - SPMDM" Height="500" Width="700">
+    <Grid Margin="0,10,2,0">
+
+
+        <Menu Margin="0,-5,0,434"	 >
+
+            <MenuItem Header="_Playlist" RenderTransformOrigin="0.505,0.419">
+                <MenuItem Click="Import_Playlist" Header="_Import Playlist"/>
+                <MenuItem Click="Save_Playlist" Header="_Save Playlist" />
+                <MenuItem  Header="_Delete this Playlist" />
+            </MenuItem>
+        </Menu>
+        <TabControl Margin="0,22,0,0">
+            <TabItem>
+                <TabItem.Header>
+                    Player
+                </TabItem.Header>
+                <Grid>
+                    <MediaElement x:Name="MediaEL" LoadedBehavior="Manual" Margin="10,10,151,159" 
+                      MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" 
+                      />
+                    <Slider x:Name="speedRatioSlider" VerticalAlignment="Bottom" ValueChanged="ChangeMediaSpeedRatio" 
+    		Maximum="2" Minimum="0" Value="1" Width="70"  Margin="24,0,0,103" HorizontalAlignment="Left" d:LayoutOverrides="Width"  />
+                    <Slider x:Name="volumeSlider" VerticalAlignment="Bottom" ValueChanged="ChangeMediaVolume" 
+    		Minimum="0" Maximum="1" Value="0.5" Width="70"  RenderTransformOrigin="0.515,0.508" Margin="0,0,1.5,77" HorizontalAlignment="Right" d:LayoutOverrides="Width" >
+                        <Slider.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="269.176"/>
+                                <TranslateTransform X="-5.627" Y="2.025"/>
+                            </TransformGroup>
+                        </Slider.RenderTransform>
+                    </Slider>
+                    <Slider x:Name="timelineSlid" Margin="98,0,202,23" RenderTransformOrigin="0.375,2.061" VerticalAlignment="Bottom" d:LayoutOverrides="Height" Thumb.DragStarted="Timeline_SeekStart" Thumb.DragCompleted="Timeline_SeekEnd" />
+                    <Button x:Name="btnPlay" Content="Play" Click="btnPlay_Click"  Width="72.5" Height="25" Margin="98,0,0,103" HorizontalAlignment="Left" VerticalAlignment="Bottom" d:LayoutOverrides="Height" >
+                        <Button.Background>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#FFF3F3F3" Offset="0"/>
+                                <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                                <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                                <GradientStop Color="#FF26D828" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Button.Background>
+                    </Button>
+                    <TextBlock HorizontalAlignment="Left" Margin="546,367,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" x:Name="textTimer"/>
+                    <Button x:Name="btnStop" Content="Stop" Click="btnStop_Click" Width="50" Height="25" Margin="170.5,0,0,103" HorizontalAlignment="Left" VerticalAlignment="Bottom" d:LayoutOverrides="Height" >
+                        <Button.Background>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#FFF3F3F3"/>
+                                <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                                <GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+                                <GradientStop Color="#FFE21414" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Button.Background>
+                    </Button>
+                    <Button x:Name="btnMoveBackward" Content="&gt;" Click="btnMoveBackward_Click" Height="25" Margin="0,0,138.5,20" VerticalAlignment="Bottom" d:LayoutOverrides="Height" HorizontalAlignment="Right" Width="50" />
+                    <Button x:Name="btnMoveForward" Content="&lt;" Click="btnMoveForward_Click" Width="50" Height="25" Margin="37.047,0,0,20" HorizontalAlignment="Left" VerticalAlignment="Bottom" d:LayoutOverrides="Height" />
+                    <Button x:Name="btnOpen" Content="Open" Click="btnOpen_Click" Height="25" Margin="0,0,138.5,103" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" d:LayoutOverrides="Height" />
+                    <TextBlock TextWrapping="Wrap" Text="Volume" HorizontalAlignment="Right" Height="29" VerticalAlignment="Bottom" Width="74.793" Margin="0,0,0,23"/>
+                    <TextBlock TextWrapping="Wrap" Text="Time Line" HorizontalAlignment="Left" Height="26.5" VerticalAlignment="Bottom" Margin="170.5,0,0,49"/>
+                    <TextBlock TextWrapping="Wrap" Text="Speed&#xd;&#xa;" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="44,0,0,72"/>
+                    <Grid HorizontalAlignment="Left" Height="100" Margin="98,22,0,0" VerticalAlignment="Top" Width="100"/>
+                    <Image x:Name="imgvisualizer" HorizontalAlignment="Left" Height="237" Margin="10,10,0,0" VerticalAlignment="Top" Width="519" RenderTransformOrigin="-0.594,-0.119">
+                        <Image.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform AngleY="0.632"/>
+                                <RotateTransform/>
+                                <TranslateTransform Y="-3.401"/>
+                            </TransformGroup>
+                        </Image.RenderTransform>
+                    </Image>
+                </Grid>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    Bibliotheque
+                </TabItem.Header>
+                <Grid Margin="10,2,142,5">
+                    <DataGrid Name="bibli" AutoGenerateColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True" 
+          CanUserResizeRows="False" CanUserSortColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                        <DataGridTextColumn Header="Artiste" Binding="{Binding Artiste}" />
+                        <DataGridTextColumn Header="Album" Binding="{Binding Album}" />
+                            <DataGridTextColumn Header="Année" Binding="{Binding Year}" />
+                        </DataGrid.Columns>
+                        <DataGrid.RowDetailsTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Comment}" Margin="10" />
+                            </DataTemplate>
+                        </DataGrid.RowDetailsTemplate>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <ListBox HorizontalAlignment="Left" Height="270" Margin="552,48,0,0" VerticalAlignment="Top" Width="124" x:Name="listsongs" SelectionChanged="listsongs_SelectedIndexChanged">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="_About this file" Click="see_meta"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
+        <TextBox HorizontalAlignment="Left" Margin="552,21,0,0" TextWrapping="Wrap" Text="PLaylist sans nom" VerticalAlignment="Top" x:Name="ListName" Width="124" RenderTransformOrigin="0.545,-0.336"/>
+    </Grid>
+</Window>

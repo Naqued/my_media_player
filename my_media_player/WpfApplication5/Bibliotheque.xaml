@@ -1,0 +1,15 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="my_windowsMediaPlayer.Bibliotheque"
+        Title="My Windows Media Player" Height="500" Width="700">
+    <Grid Margin="0,10,2,0">
+        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22" Width="74"><Run Language="fr-fr" Text="Titre :"/><LineBreak/><Run Language="fr-fr"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="143,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22" Width="74"><Run Language="fr-fr" Text="Artiste"/><LineBreak/><Run Language="fr-fr"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="281,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22" Width="74"><Run Language="fr-fr" Text="Album"/><LineBreak/><Run Language="fr-fr"/><LineBreak/><Run Language="fr-fr"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="410,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22" Width="74"><Run Language="fr-fr" Text="Commentaire"/><LineBreak/><Run Language="fr-fr"/></TextBlock>
+        <DataGrid>
+            <DataGrid ItemsSource="{Binding asong}" />
+        </DataGrid>
+    </Grid>
+</Window>
