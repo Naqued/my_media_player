@@ -110,7 +110,13 @@ public partial class Mywindow : Window
                     Draging = false;
                 }
                 timer.Start();
-                MediaEL.Play();
+                if (MediaEL.HasVideo)
+                    MediaEL.Play();
+                else
+                {
+                    mediaELFAKE = MediaEL;
+                    mediaELFAKE.Play();
+                }
                 btnPlay.Content = "Pause";
             }
             else
@@ -172,7 +178,6 @@ public partial class Mywindow : Window
                     else
                         mode = 0;
                     getMetaMov(_allfiles.Count - 1, 0);
-                    feed_SongInfo(_allfiles.Count - 1, 0);
                     btnPlay.IsEnabled = true;
                     #endregion
                     }
@@ -245,7 +250,6 @@ public partial class Mywindow : Window
         {
             MediaEL.Volume = (double)volumeSlider.Value;
             MediaEL.SpeedRatio = (double)speedRatioSlider.Value;
-
             listsongs.SelectionMode = SelectionMode.Single;
             feed_bibli();
             ICollectionView cvTasks = CollectionViewSource.GetDefaultView(_biblifiles);
@@ -276,13 +280,19 @@ public partial class Mywindow : Window
         private void    play_file(int idx)
         {
             current = idx;
-            if (Check_ext(_allfiles[current].Path, 1))
+            if (Check_ext(_allfiles[current].Path, 1) || Check_ext(_allfiles[current].Path, 0))
             {
                 #region Vidéo - Sound
                 reset_Timer(0.00);
                 MediaEL.Source = new Uri(_allfiles[current].Path);
                 timer.Start();
-                MediaEL.Play();
+                if (MediaEL.HasVideo) // trix de sons
+                    MediaEL.Play();
+                else
+                {
+                    mediaELFAKE = MediaEL;
+                    mediaELFAKE.Play();
+                }
                 if (timelineSlid.Value < 0.5)
                     _allfiles[current].NbPlay++;
                 btnPlay.Content = "Pause";
@@ -384,13 +394,21 @@ public partial class Mywindow : Window
                     }
                     else
                     {
-                        MessageBox.Show(cleanname.Count().ToString());
                         string msg = "Le fichier " + cleanname[cleanname.Count() - 1] + " n'a pas pus être trouvé";
                         MessageBox.Show(msg);
                     }
                 }
-                _playMoy = _playMoy / _allfiles.Count();
+                if (_allfiles.Count > 0)
+                    _playMoy = _playMoy / _allfiles.Count();
             }
+        }
+        private void    clean_playlist(object sender, EventArgs e)
+        {
+            _allfiles.Clear();
+            ListName.Text = "Playlist sans nom";
+            IsPlaying(false);
+            mode = 0;
+            listsongs.Items.Clear();
         }
         private void    next_song()
         {
@@ -540,7 +558,10 @@ public partial class Mywindow : Window
         {
             String rep;
 
-            MyWebRequest req = new MyWebRequest("http://www.omdbapi.com/?t=" + "singe" + "&apikey=b245d105&r=xml");
+            char[] delimfile = { '.', ',', '-', '_' };
+            string[] cleanname = _allfiles[idx].Name.Split(delimfile);
+
+            MyWebRequest req = new MyWebRequest("http://www.omdbapi.com/?t=" + cleanname[0] + "&apikey=b245d105&r=xml");
             rep = req.GetResponse();
             XElement doc = XElement.Parse(rep);
             IEnumerable<XElement> infos =
@@ -548,6 +569,7 @@ public partial class Mywindow : Window
             select el;
             foreach (XElement t in infos)
             {
+
                 _biblifiles[idx].Name = (string)t.Attribute("title");
                 _biblifiles[idx].Year = (string)t.Attribute("year");
                 _biblifiles[idx].Rate = (string)t.Attribute("rated");
@@ -558,9 +580,21 @@ public partial class Mywindow : Window
                 _biblifiles[idx].Artiste = (string)t.Attribute("director");
                 _biblifiles[idx].Writer = (string)t.Attribute("writer");
                 _biblifiles[idx].Comment = (string)t.Attribute("plot");
+
+                _allfiles[idx].Name = (string)t.Attribute("title");
+                _allfiles[idx].Year = (string)t.Attribute("year");
+                _allfiles[idx].Rate = (string)t.Attribute("rated");
+                _allfiles[idx].Runtime = (string)t.Attribute("runtime");
+                _allfiles[idx].Langue = (string)t.Attribute("language");
+                _allfiles[idx].Actors = (string)t.Attribute("actors");
+                _allfiles[idx].Director = (string)t.Attribute("director");
+                _allfiles[idx].Artiste = (string)t.Attribute("director");
+                _allfiles[idx].Writer = (string)t.Attribute("writer");
+                _allfiles[idx].Comment = (string)t.Attribute("plot");
+
             }
-            if (mod == 1)
-                MessageBox.Show("Song info : " + _biblifiles[idx].Name + Environment.NewLine +
+            if (mod == 1 && _biblifiles[idx].Comment != null)
+                MessageBox.Show("Movie info : " + _biblifiles[idx].Name + Environment.NewLine +
                     Environment.NewLine +
                     "Name : " + _biblifiles[idx].Name + Environment.NewLine +
                     "rate : " + _biblifiles[idx].Rate + Environment.NewLine +
@@ -571,6 +605,8 @@ public partial class Mywindow : Window
                     "Directeur(s) : " + _biblifiles[idx].Director + Environment.NewLine +
                     "Ecrivain(s) : " + _biblifiles[idx].Writer + Environment.NewLine
                     );
+            else
+                MessageBox.Show("Nous n'avons pus trouvé d'information concernant cette vidéo. Veuillez vérifier le nom du fichier.");
         }
         #endregion
         #endregion
