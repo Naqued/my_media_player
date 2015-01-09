@@ -10,6 +10,7 @@ namespace my_windowsMediaPlayer
     public enum Type
     {
         Sound,
+        Video,
         Image
     }
     class MyFile
@@ -17,10 +18,20 @@ namespace my_windowsMediaPlayer
         private int    _index;
         private string _name;
         private string _path;
+
         private string _artiste;
         private string _album;
         private string _year;
         private string _comment;
+        
+        private string _rate;
+        private string _runtime;
+        private string _genre;
+        private string _director;
+        private string _langue;
+        private string _actors;
+        private string _writer;
+
         private Type _type;
         private String _details;
 
@@ -30,6 +41,62 @@ namespace my_windowsMediaPlayer
             set
             {
                 _name = value;
+            }
+        }
+        public string Writer
+        {
+            get { return _writer; }
+            set
+            {
+                _writer = value;
+            }
+        }
+        public string Rate
+        {
+            get { return _rate; }
+            set
+            {
+                _rate = value;
+            }
+        }
+        public string Actors
+        {
+            get { return _actors; }
+            set
+            {
+                _actors = value;
+            }
+        }
+        public string Runtime
+        {
+            get { return _runtime; }
+            set
+            {
+                _runtime = value;
+            }
+        }
+        public string Genre
+        {
+            get { return _genre; }
+            set
+            {
+                _genre = value;
+            }
+        }
+        public string Director
+        {
+            get { return _director; }
+            set
+            {
+                _director = value;
+            }
+        }
+        public string Langue
+        {
+            get { return _langue; }
+            set
+            {
+                _langue = value;
             }
         }
         public string Path

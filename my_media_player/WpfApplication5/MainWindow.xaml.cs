@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
 using System.Web;
+using System.Xml;
 
 namespace my_windowsMediaPlayer
 {
@@ -33,7 +34,8 @@ public partial class Mywindow : Window
 
         List<MyFile> _allfiles = new List<MyFile>();
         List<MyFile> _biblifiles = new List<MyFile>();
-        String _username = Environment.UserName;
+        String       _username = Environment.UserName;
+        double          PauseTime = 0.00;
 
         public ICollectionView asong { get; private set; }
         public ICollectionView Groupedsong { get; private set; }
@@ -82,12 +84,12 @@ public partial class Mywindow : Window
                 textTimer.Text = time;
             }
         }
-        void    reset_Timer()
+        void    reset_Timer(double val)
         {            
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(200);
             timer.Tick += new EventHandler(timer_Timeline);
-            timelineSlid.Value = 0.00;
+            timelineSlid.Value = val;
         }
         #endregion
         #region Play and Pause
@@ -98,11 +100,12 @@ public partial class Mywindow : Window
             {
                 if (MediaEL.NaturalDuration.HasTimeSpan)
                 {
-                    reset_Timer();
-                    TimeSpan ts = MediaEL.NaturalDuration.TimeSpan;
-                    timelineSlid.Maximum = ts.TotalSeconds;
-                    timelineSlid.SmallChange = 1;
-                    timelineSlid.LargeChange = Math.Min(10, ts.Seconds / 10);
+                    PauseTime = timelineSlid.Value;
+     /*                   reset_Timer(PauseTime);
+                        TimeSpan ts = MediaEL.NaturalDuration.TimeSpan;
+                        timelineSlid.Maximum = ts.TotalSeconds;
+                        timelineSlid.SmallChange = 1;
+                        timelineSlid.LargeChange = Math.Min(10, ts.Seconds / 10);*/
                     Draging = false;
                 }
                 timer.Start();
@@ -112,6 +115,7 @@ public partial class Mywindow : Window
             else
             {
                 MediaEL.Pause();
+                PauseTime = timelineSlid.Value;
                 btnPlay.Content = "Play";                
             }
         }
@@ -127,7 +131,7 @@ public partial class Mywindow : Window
         }
         #endregion
         #region Back and Forward
-        private void btnMoveBackward_Click(object sender, RoutedEventArgs e)
+        private void btnMoveForward_Click(object sender, RoutedEventArgs e)
         {
             if (MediaEL.Position < TimeSpan.FromSeconds(7))
                 if (current - 1 >= 0)
@@ -138,7 +142,7 @@ public partial class Mywindow : Window
                 MediaEL.Position = TimeSpan.FromSeconds(0);
         }
 
-        private void btnMoveForward_Click(object sender, RoutedEventArgs e)
+        private void btnMoveBackward_Click(object sender, RoutedEventArgs e)
         {
             next_song();
         }
@@ -153,23 +157,21 @@ public partial class Mywindow : Window
             {
                 foreach (String name in ofd.FileNames)
                 {
-                    if (Check_ext(name, 1))
+                    if (Check_ext(name, 1) || Check_ext(name, 0))
                     {
                         #region Vidéo - Sound
                     if (_allfiles.Count == 0)
                         MediaEL.Source = new Uri(name);
-//                    _songs.Add(name);
 
-
-//                    string[] cleanname = name.Split(delimfile);
                     _allfiles.Add(new MyFile(name, _allfiles.Count(), Type.Sound));
                     listsongs.Items.Add(_allfiles[_allfiles.Count - 1].Name);
-//                    listsongs.Items.Add(cleanname[cleanname.Count() - 1]);
+
                     if (MediaEL.HasVideo)
                         mode = 1;
                     else
                         mode = 0;
                     getMetaMov(_allfiles.Count - 1);
+                    feed_SongInfo(_allfiles.Count - 1, 0);
                     btnPlay.IsEnabled = true;
                     #endregion
                     }
@@ -245,7 +247,13 @@ public partial class Mywindow : Window
 
             listsongs.SelectionMode = SelectionMode.Single;
             feed_bibli();
-            bibli.ItemsSource = _biblifiles;
+            ICollectionView cvTasks = CollectionViewSource.GetDefaultView(_biblifiles);
+            if (cvTasks != null && cvTasks.CanGroup == true)
+            {
+                cvTasks.GroupDescriptions.Clear();
+                cvTasks.GroupDescriptions.Add(new PropertyGroupDescription("Type"));
+            }
+            bibli.ItemsSource = cvTasks;
         }
         #endregion
         #region Media End
@@ -270,21 +278,19 @@ public partial class Mywindow : Window
             if (Check_ext(_allfiles[current].Path, 1))
             {
                 #region Vidéo - Sound
-                reset_Timer();
+                reset_Timer(0.00);
                 MediaEL.Source = new Uri(_allfiles[current].Path);
-                TimeSpan ts2 = new TimeSpan(0, 0, 0, 0, 0);
+    /*            TimeSpan ts2 = new TimeSpan(0, 0, 0, 0, 0);
                 MediaEL.Position = ts2;
                 if (MediaEL.NaturalDuration.HasTimeSpan)
                 {
-                    MessageBox.Show("time : " + MediaEL.NaturalDuration.TimeSpan.ToString());
                     TimeSpan ts = MediaEL.NaturalDuration.TimeSpan;
                     timelineSlid.Value = 0.00;
-                                     MessageBox.Show("time :" + ts.TotalSeconds);
                     timelineSlid.Maximum = ts.TotalSeconds;
                     timelineSlid.SmallChange = 1;
                     timelineSlid.LargeChange = Math.Min(10, ts.Seconds / 10);
                     Draging = false;
-                }
+                }*/
                 timer.Start();
                 MediaEL.Play();
                 btnPlay.Content = "Pause";
@@ -371,7 +377,7 @@ public partial class Mywindow : Window
                     {
                         _allfiles.Add(new MyFile(clean[2], _allfiles.Count(), Type.Sound));
                         listsongs.Items.Add(_allfiles[_allfiles.Count() - 1].Name);
-                       if (Check_ext(clean[2], 1))
+                       if (Check_ext(clean[2], 0))
                             getMetaMov(_allfiles.Count() - 1);
 //                        else if (Check_ext(clean[2], 2))
 //                            getMetaImg()
@@ -412,13 +418,20 @@ public partial class Mywindow : Window
 
         private bool    Check_ext(string path, int mod)
         {
-            if (mod == 0 || mod == 1)
+            if (mod == 0)
             {
-                if (path.IndexOf(".avi") != -1 || path.IndexOf(".mov") != -1 || path.IndexOf(".mpg") != -1 || path.IndexOf(".mpa") != -1 || path.IndexOf(".wma") != -1 || path.IndexOf(".mp3") != -1 || path.IndexOf(".vob") != -1 || path.IndexOf(".flac") != -1 || path.IndexOf(".cda") != -1 || path.IndexOf(".wav") != -1 || path.IndexOf(".mid") != -1 || path.IndexOf(".ogg") != -1)
+                if (path.IndexOf(".wmv") != -1 || path.IndexOf(".avi") != -1 || path.IndexOf(".mov") != -1)
                     return (true);
                 else               
                     return (false);
             }
+            else if (mod == 1)
+            {
+                if (path.IndexOf(".mpg") != -1 || path.IndexOf(".mpa") != -1 || path.IndexOf(".wma") != -1 || path.IndexOf(".mp3") != -1 || path.IndexOf(".vob") != -1 || path.IndexOf(".flac") != -1 || path.IndexOf(".cda") != -1 || path.IndexOf(".wav") != -1 || path.IndexOf(".mid") != -1 || path.IndexOf(".ogg") != -1)
+                    return (true);
+                else
+                    return (false);
+            }   
             else if (mod == 2)
             {
                 if (path.IndexOf(".jpg") != -1 || path.IndexOf(".jpeg") != -1 || path.IndexOf(".bmp") != -1 || path.IndexOf(".tiff") != -1 || path.IndexOf(".gif") != -1 || path.IndexOf(".rif") != -1 || path.IndexOf(".bpg") != -1 || path.IndexOf(".png") != -1)
@@ -438,6 +451,7 @@ public partial class Mywindow : Window
 
         #region Meta Data
         #region Sound - Video Meta
+        #region By-Bytes
         private void    getMetaMov(int idx)
         {
 
@@ -547,15 +561,74 @@ public partial class Mywindow : Window
         }
         private void see_meta(object sender, EventArgs e)
         {
-            getMetaMov(current);
+            feed_SongInfo(current, 1);
         }
         #endregion
-        #region Image
-        private void    getMetaImg(ImageMetadata img)
+        #region API IMDB
+        private void    feed_SongInfo(int idx, int mod)
         {
+            String rep;
+
+            MyWebRequest req = new MyWebRequest("http://www.omdbapi.com/?t=" + "singe" + "&apikey=b245d105&r=xml");
+            rep = req.GetResponse();
+            XElement doc = XElement.Parse(rep);
+            IEnumerable<XElement> infos =
+            from el in doc.Elements("movie")
+            select el;
+            foreach (XElement t in infos)
+            {
+                _biblifiles[idx].Name = (string)t.Attribute("title");
+                _biblifiles[idx].Year = (string)t.Attribute("year");
+                _biblifiles[idx].Rate = (string)t.Attribute("rated");
+                _biblifiles[idx].Runtime = (string)t.Attribute("runtime");
+                _biblifiles[idx].Langue = (string)t.Attribute("language");
+                _biblifiles[idx].Actors = (string)t.Attribute("actors");
+                _biblifiles[idx].Director = (string)t.Attribute("director");
+                _biblifiles[idx].Writer = (string)t.Attribute("writer");                  
+            }
+            if (mod == 1)
+                MessageBox.Show("Song info : " + _biblifiles[idx].Name + "-" + 
+                    "-" +
+                    "Name : " + _biblifiles[idx].Name + "--" +
+                    "rate : " + _biblifiles[idx].Rate + "--" +
+                    "Année de production : " + _biblifiles[idx].Year + "--" +
+                    "Durée : " + _biblifiles[idx].Runtime + "--" +
+                    "Langue : " + _biblifiles[idx].Langue + "--" +
+                    "Acteurs : " + _biblifiles[idx].Actors + "--" +
+                    "Directeur(s) : " + _biblifiles[idx].Director + "--" +
+                    "Ecrivain(s) : " + _biblifiles[idx].Writer + "--"
+                    );
+        }
+        #endregion
+        #endregion
+        #region Image
+     /*   private void    getMetaImg(ImageMetadata img)
+        {
+            List<string> arrHeaders = new List<string>();
+
+            Shell32.Shell shell = new Shell32.Shell();
+            Shell32.Folder objFolder;
+
+            objFolder = shell.NameSpace(@"C:\temp\testprop");
+
+            for (int i = 0; i < short.MaxValue; i++)
+            {
+                string header = objFolder.GetDetailsOf(null, i);
+                if (String.IsNullOrEmpty(header))
+                    break;
+                arrHeaders.Add(header);
+            }
+
+            foreach (Shell32.FolderItem2 item in objFolder.Items())
+            {
+                for (int i = 0; i < arrHeaders.Count; i++)
+                {
+                    Console.WriteLine("{0}\t{1}: {2}", i, arrHeaders[i], objFolder.GetDetailsOf(item, i));
+                }
+            }
 //            MessageBox.Show("The Description metadata of this image is: " + img("/Text/Description").ToString());
 
-        }
+        }*/
         #endregion
         #endregion
         #region Bibliotheque
@@ -578,6 +651,11 @@ public partial class Mywindow : Window
                     foreach (string dir in dirs)
                     {
                         if (Check_ext(dir, 0))
+                        {
+                            _biblifiles.Add(new MyFile(dir, _biblifiles.Count - 1, Type.Video));
+                            getMetaBibl(_biblifiles.Count - 1);
+                        }
+                        if (Check_ext(dir, 1))
                         {
                             _biblifiles.Add(new MyFile(dir, _biblifiles.Count - 1, Type.Sound));
                             getMetaBibl(_biblifiles.Count - 1);

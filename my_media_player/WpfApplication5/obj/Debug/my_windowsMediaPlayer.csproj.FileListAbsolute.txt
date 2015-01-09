@@ -16,3 +16,21 @@ C:\Users\Nqd\Documents\Visual Studio 2013\Projects\WpfApplication5\WpfApplicatio
 C:\Users\Nqd\Documents\Visual Studio 2013\Projects\WpfApplication5\WpfApplication5\bin\Debug\policy.2.0.taglib-sharp.dll
 C:\Users\Nqd\Documents\Visual Studio 2013\Projects\WpfApplication5\WpfApplication5\bin\Debug\taglib-sharp.dll
 C:\Users\Nqd\Documents\Visual Studio 2013\Projects\WpfApplication5\WpfApplication5\bin\Debug\policy.2.0.taglib-sharp.config
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\bin\Debug\my_windowsMediaPlayer.exe.config
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\bin\Debug\my_windowsMediaPlayer.exe
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\bin\Debug\my_windowsMediaPlayer.pdb
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\bin\Debug\policy.2.0.taglib-sharp.dll
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\bin\Debug\taglib-sharp.dll
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\bin\Debug\policy.2.0.taglib-sharp.config
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer.csprojResolveAssemblyReference.cache
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\Bibliotheque.baml
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\MainWindow.baml
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\Bibliotheque.g.cs
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\MainWindow.g.cs
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\App.g.cs
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer_MarkupCompile.cache
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer.g.resources
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer.Properties.Resources.resources
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer.csproj.GenerateResource.Cache
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer.exe
+C:\Users\Nqd\Documents\my_media_player\my_media_player\WpfApplication5\obj\Debug\my_windowsMediaPlayer.pdb

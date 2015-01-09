@@ -51,7 +51,7 @@ namespace my_windowsMediaPlayer {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/WpfApplication5;component/bibliotheque.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/my_windowsMediaPlayer;component/bibliotheque.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\Bibliotheque.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

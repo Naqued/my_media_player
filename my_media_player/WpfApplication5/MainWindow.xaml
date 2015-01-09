@@ -83,9 +83,21 @@
                     Bibliotheque
                 </TabItem.Header>
                 <Grid Margin="10,2,142,5">
+                    
                     <DataGrid Name="bibli" AutoGenerateColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True" 
-          CanUserResizeRows="False" CanUserSortColumns="True">
-                    <DataGrid.Columns>
+          CanUserResizeRows="False" CanUserSortColumns="True" >
+                        <DataGrid.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Path=Name}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </DataGrid.GroupStyle>
+                        <DataGrid.Columns>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Artiste" Binding="{Binding Artiste}" />
                         <DataGridTextColumn Header="Album" Binding="{Binding Album}" />
@@ -96,10 +108,12 @@
                                 <TextBlock Text="{Binding Comment}" Margin="10" />
                             </DataTemplate>
                         </DataGrid.RowDetailsTemplate>
+                        
                     </DataGrid>
                 </Grid>
             </TabItem>
         </TabControl>
+
         <ListBox HorizontalAlignment="Left" Height="270" Margin="552,48,0,0" VerticalAlignment="Top" Width="124" x:Name="listsongs" SelectionChanged="listsongs_SelectedIndexChanged">
             <ListBox.ContextMenu>
                 <ContextMenu>
