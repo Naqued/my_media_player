@@ -37,6 +37,7 @@ public partial class Mywindow : Window
         String       _username = Environment.UserName;
         double        PauseTime = 0.00;
         int          _playMoy;
+        string       _PlaylistPath;
  
         public ICollectionView asong { get; private set; }
         public ICollectionView Groupedsong { get; private set; }
@@ -710,5 +711,9 @@ public partial class Mywindow : Window
             play_file(current);
         }
         #endregion
+        private void    close_app(Object sender, EventArgs e)
+        {
+            MessageBox.Show("Good Bye " + Environment.UserName);
+        }
     }
 }

@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="my_windowsMediaPlayer.Mywindow"
-        Title="SiPaMaDaMedia - SPMDM" Height="500" Width="700">
-    <Grid Margin="0,10,2,0">
+        Title="SiPaMaDaMedia - SPMDM" Height="500" Width="700" Closing="close_app">
+    <Grid  Margin="0,10,2,0">
 
 
         <Menu Margin="0,-5,0,434"	 >
@@ -132,4 +132,5 @@
         <TextBox HorizontalAlignment="Left" Margin="552,21,0,0" TextWrapping="Wrap" Text="Playlist sans nom" VerticalAlignment="Top" x:Name="ListName" Width="124" RenderTransformOrigin="0.545,-0.336"/>
         <MediaElement HorizontalAlignment="Left" Height="6" Margin="-6,116,0,0" VerticalAlignment="Top" Width="17" x:Name="mediaELFAKE"/>
     </Grid>
+
 </Window>
