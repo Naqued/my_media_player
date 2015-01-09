@@ -32,6 +32,8 @@ namespace my_windowsMediaPlayer
         private string _actors;
         private string _writer;
 
+        private int _nbPlay = 0;
+
         private Type _type;
         private String _details;
 
@@ -42,6 +44,11 @@ namespace my_windowsMediaPlayer
             {
                 _name = value;
             }
+        }
+        public int NbPlay
+        {
+            get { return _nbPlay; }
+            set {_nbPlay = value; }
         }
         public string Writer
         {

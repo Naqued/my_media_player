@@ -35,8 +35,9 @@ public partial class Mywindow : Window
         List<MyFile> _allfiles = new List<MyFile>();
         List<MyFile> _biblifiles = new List<MyFile>();
         String       _username = Environment.UserName;
-        double          PauseTime = 0.00;
-
+        double        PauseTime = 0.00;
+        int          _playMoy;
+ 
         public ICollectionView asong { get; private set; }
         public ICollectionView Groupedsong { get; private set; }
         DispatcherTimer timer;
@@ -46,7 +47,7 @@ public partial class Mywindow : Window
         // 0 : sans vidéo
         // 1 : vidéo
         // 2 : image
-        private int mode;
+        private int mode = 0;
 
         public Mywindow()
         {
@@ -170,7 +171,7 @@ public partial class Mywindow : Window
                         mode = 1;
                     else
                         mode = 0;
-                    getMetaMov(_allfiles.Count - 1);
+                    getMetaMov(_allfiles.Count - 1, 0);
                     feed_SongInfo(_allfiles.Count - 1, 0);
                     btnPlay.IsEnabled = true;
                     #endregion
@@ -280,21 +281,13 @@ public partial class Mywindow : Window
                 #region Vidéo - Sound
                 reset_Timer(0.00);
                 MediaEL.Source = new Uri(_allfiles[current].Path);
-    /*            TimeSpan ts2 = new TimeSpan(0, 0, 0, 0, 0);
-                MediaEL.Position = ts2;
-                if (MediaEL.NaturalDuration.HasTimeSpan)
-                {
-                    TimeSpan ts = MediaEL.NaturalDuration.TimeSpan;
-                    timelineSlid.Value = 0.00;
-                    timelineSlid.Maximum = ts.TotalSeconds;
-                    timelineSlid.SmallChange = 1;
-                    timelineSlid.LargeChange = Math.Min(10, ts.Seconds / 10);
-                    Draging = false;
-                }*/
                 timer.Start();
                 MediaEL.Play();
+                if (timelineSlid.Value < 0.5)
+                    _allfiles[current].NbPlay++;
                 btnPlay.Content = "Pause";
                 mode = 0;
+                
                 IsPlaying(true);
 
                 #endregion
@@ -329,7 +322,7 @@ public partial class Mywindow : Window
              new XElement("Playlist"));
             while (i < _allfiles.Count)
             {
-                document.Element("Playlist").Add(new XElement("Song", _allfiles[i].Path));
+                document.Element("Playlist").Add(new XElement("Song", new XAttribute("NbPlay", _allfiles[i].NbPlay), new XAttribute("Path", _allfiles[i].Path)));
                 i++;
             }
             System.Windows.Forms.SaveFileDialog ofd = new System.Windows.Forms.SaveFileDialog();
@@ -349,6 +342,7 @@ public partial class Mywindow : Window
         private void    Import_Playlist(object sender, EventArgs e)
         {
             current = 0;
+            _playMoy = 0;
             System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
             ofd.DefaultExt = ".xml";
             ofd.AddExtension = true;
@@ -363,22 +357,28 @@ public partial class Mywindow : Window
                     return ;
                 XElement xelement = XElement.Load(ofd.FileName);
                 IEnumerable<XElement> playlist = xelement.Elements();
-                // Read the entire XML
+                
                 string[] cleanname = ofd.FileName.Split(delimfile);
                 ListName.Text = cleanname[cleanname.Count() - 1];
                 listsongs.Items.Clear();
                 _allfiles.Clear();
-             //   _songs.Clear();
-                foreach (var song in playlist)
+                XElement doc = XElement.Parse(xelement.ToString());
+                IEnumerable<XElement> infos =
+                from el in doc.Elements("Song")
+                select el;
+                foreach (XElement t in infos)
                 {
-                    string[] clean = song.ToString().Split(delimiterChars);
-                    cleanname = clean[2].Split(delimfile);
-                    if (File.Exists(clean[2]))
+                    string path =  (string)t.Attribute("Path");
+                    if (File.Exists(path))
                     {
-                        _allfiles.Add(new MyFile(clean[2], _allfiles.Count(), Type.Sound));
+                        _allfiles.Add(new MyFile(path, _allfiles.Count(), Type.Sound));
+                        _allfiles[_allfiles.Count() - 1].NbPlay = int.Parse((string)t.Attribute("NbPlay"));
+                        _playMoy += int.Parse((string)t.Attribute("NbPlay"));
                         listsongs.Items.Add(_allfiles[_allfiles.Count() - 1].Name);
-                       if (Check_ext(clean[2], 0))
-                            getMetaMov(_allfiles.Count() - 1);
+                        if (Check_ext(path, 0))
+                            getMetaMov(_allfiles.Count() - 1, 0);
+                       else if (Check_ext(path, 1))
+                           getMetaMov(_allfiles.Count() - 1, 0);
 //                        else if (Check_ext(clean[2], 2))
 //                            getMetaImg()
                     }
@@ -389,14 +389,21 @@ public partial class Mywindow : Window
                         MessageBox.Show(msg);
                     }
                 }
-
+                _playMoy = _playMoy / _allfiles.Count();
             }
         }
         private void    next_song()
         {
             if (current + 1 < _allfiles.Count())
             {
-                current++;
+                if (mode == 1)
+                    while (_allfiles[current].NbPlay <= _playMoy && current < _allfiles.Count())
+                        current++;
+                else if (mode == 2)
+                    while (_allfiles[current].NbPlay >= _playMoy && current < _allfiles.Count())
+                        current++;
+                else
+                    current++;
                 play_file(current);
             }
             else
@@ -452,7 +459,7 @@ public partial class Mywindow : Window
         #region Meta Data
         #region Sound - Video Meta
         #region By-Bytes
-        private void    getMetaMov(int idx)
+        private void    getMetaMov(int idx, int mod)
         {
 
                 byte[] b = new byte[128];
@@ -466,7 +473,10 @@ public partial class Mywindow : Window
 
                 try
                 {
-                    fs = new FileStream(_allfiles[idx].Path, FileMode.Open);
+                    if (mod == 0)
+                        fs = new FileStream(_allfiles[idx].Path, FileMode.Open);
+                    else
+                        fs = new FileStream(_biblifiles[idx].Path, FileMode.Open);
                 }
                 catch
                 {
@@ -501,63 +511,24 @@ public partial class Mywindow : Window
                     //get   Comment; 
                     if ((sComm = System.Text.Encoding.Default.GetString(b, 97, 30)) == null)
                         sComm = "n/a";
-
-                    _allfiles[idx].Name = sTitle;
-                    _allfiles[idx].Comment = sComm;
-                    _allfiles[idx].Year = sYear;
-                    _allfiles[idx].Album = sAlbum;
-                    _allfiles[idx].Artiste = sSinger;
+                    if (mod == 0)
+                    {
+                        _allfiles[idx].Name = sTitle;
+                        _allfiles[idx].Comment = sComm;
+                        _allfiles[idx].Year = sYear;
+                        _allfiles[idx].Album = sAlbum;
+                        _allfiles[idx].Artiste = sSinger;
+                    }
+                    else
+                    {
+                        _biblifiles[idx].Name = sTitle;
+                        _biblifiles[idx].Comment = sComm;
+                        _biblifiles[idx].Year = sYear;
+                        _biblifiles[idx].Album = sAlbum;
+                        _biblifiles[idx].Artiste = sSinger;
+                    }
                 }
                 fs.Close();
-        }
-        private void getMetaBibl(int idx)
-        {
-            byte[] b = new byte[128];
-
-            string sTitle;
-            string sSinger;
-            string sAlbum;
-            string sYear;
-            string sComm;
-
-            FileStream fs = new FileStream(_biblifiles[idx].Path, FileMode.Open);
-            fs.Seek(-128, SeekOrigin.End);
-            fs.Read(b, 0, 128);
-            bool isSet = false;
-            String sFlag = System.Text.Encoding.Default.GetString(b, 0, 3);
-            if (sFlag.CompareTo("TAG") == 0)
-            {
-                isSet = true;
-            }
-
-            if (isSet)
-            {
-                //get   title   of   song; 
-                if ((sTitle = System.Text.Encoding.Default.GetString(b, 3, 30)) == null)
-                    sTitle = "n/a";
-
-                //get   singer; 
-                if ((sSinger = System.Text.Encoding.Default.GetString(b, 33, 30)) == null)
-                    sSinger = "n/a";
-
-                //get   album; 
-                if ((sAlbum = System.Text.Encoding.Default.GetString(b, 63, 30)) == null)
-                    sAlbum = "n/a";
-                //get   Year   of   publish; 
-                if ((sYear = System.Text.Encoding.Default.GetString(b, 93, 4)) == null)
-                    sYear = "n/a";
-
-                //get   Comment; 
-                if ((sComm = System.Text.Encoding.Default.GetString(b, 97, 30)) == null)
-                    sComm = "n/a";
-
-                _biblifiles[idx].Name = sTitle;
-                _biblifiles[idx].Comment = sComm;
-                _biblifiles[idx].Year = sYear;
-                _biblifiles[idx].Album = sAlbum;
-                _biblifiles[idx].Artiste = sSinger;
-            }
-            fs.Close();
         }
         private void see_meta(object sender, EventArgs e)
         {
@@ -584,19 +555,21 @@ public partial class Mywindow : Window
                 _biblifiles[idx].Langue = (string)t.Attribute("language");
                 _biblifiles[idx].Actors = (string)t.Attribute("actors");
                 _biblifiles[idx].Director = (string)t.Attribute("director");
-                _biblifiles[idx].Writer = (string)t.Attribute("writer");                  
+                _biblifiles[idx].Artiste = (string)t.Attribute("director");
+                _biblifiles[idx].Writer = (string)t.Attribute("writer");
+                _biblifiles[idx].Comment = (string)t.Attribute("plot");
             }
             if (mod == 1)
-                MessageBox.Show("Song info : " + _biblifiles[idx].Name + "-" + 
-                    "-" +
-                    "Name : " + _biblifiles[idx].Name + "--" +
-                    "rate : " + _biblifiles[idx].Rate + "--" +
-                    "Année de production : " + _biblifiles[idx].Year + "--" +
-                    "Durée : " + _biblifiles[idx].Runtime + "--" +
-                    "Langue : " + _biblifiles[idx].Langue + "--" +
-                    "Acteurs : " + _biblifiles[idx].Actors + "--" +
-                    "Directeur(s) : " + _biblifiles[idx].Director + "--" +
-                    "Ecrivain(s) : " + _biblifiles[idx].Writer + "--"
+                MessageBox.Show("Song info : " + _biblifiles[idx].Name + Environment.NewLine +
+                    Environment.NewLine +
+                    "Name : " + _biblifiles[idx].Name + Environment.NewLine +
+                    "rate : " + _biblifiles[idx].Rate + Environment.NewLine +
+                    "Année de production : " + _biblifiles[idx].Year + Environment.NewLine +
+                    "Durée : " + _biblifiles[idx].Runtime + Environment.NewLine +
+                    "Langue : " + _biblifiles[idx].Langue + Environment.NewLine +
+                    "Acteurs : " + _biblifiles[idx].Actors + Environment.NewLine +
+                    "Directeur(s) : " + _biblifiles[idx].Director + Environment.NewLine +
+                    "Ecrivain(s) : " + _biblifiles[idx].Writer + Environment.NewLine
                     );
         }
         #endregion
@@ -642,6 +615,8 @@ public partial class Mywindow : Window
             _allPath.Add("c:\\Users\\Public\\Pictures\\");
             _allPath.Add("c:\\Users\\" + _username + "\\Videos\\");
             _allPath.Add("c:\\Users\\Public\\Videos\\");
+            _allPath.Add("c:\\Users\\" + _username + "\\Documents\\");
+            _allPath.Add("c:\\Users\\Public\\Documents\\");
 
             try
             {
@@ -653,17 +628,17 @@ public partial class Mywindow : Window
                         if (Check_ext(dir, 0))
                         {
                             _biblifiles.Add(new MyFile(dir, _biblifiles.Count - 1, Type.Video));
-                            getMetaBibl(_biblifiles.Count - 1);
+                            getMetaMov(_biblifiles.Count - 1, 1);
                         }
                         if (Check_ext(dir, 1))
                         {
                             _biblifiles.Add(new MyFile(dir, _biblifiles.Count - 1, Type.Sound));
-                            getMetaBibl(_biblifiles.Count - 1);
+                            getMetaMov(_biblifiles.Count - 1, 1);
                         }
                         else if (Check_ext(dir, 2))
                         {
                             _biblifiles.Add(new MyFile(dir, _biblifiles.Count - 1, Type.Image));
-                            getMetaBibl(_biblifiles.Count - 1);
+                            getMetaMov(_biblifiles.Count - 1, 1);
                         }
                     }                    
                 }
@@ -673,6 +648,30 @@ public partial class Mywindow : Window
                MessageBox.Show("Error when try to feed bibliotheque");
             }
 
+        }
+        #endregion
+        #region playlist gestion
+        private void    Starred_playlist(object sender, EventArgs e)
+        {
+            current = 0;
+            while (_allfiles[current].NbPlay <= _playMoy && current < _allfiles.Count)
+                current++;
+            mode = 1;
+            play_file(current);
+        }
+        private void    UnStarred_playlist(object sender, EventArgs e)
+        {
+            current = 0;
+            while (_allfiles[current].NbPlay >= _playMoy && current < _allfiles.Count)
+                current++;
+            mode = 2;
+            play_file(current);
+        }
+        private void normal_lecture(object sender, EventArgs e)
+        {
+            current = 0;
+            mode = 0;
+            play_file(current);
         }
         #endregion
     }

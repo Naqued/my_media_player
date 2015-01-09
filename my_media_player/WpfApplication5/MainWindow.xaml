@@ -11,7 +11,11 @@
             <MenuItem Header="_Playlist" RenderTransformOrigin="0.505,0.419">
                 <MenuItem Click="Import_Playlist" Header="_Import Playlist"/>
                 <MenuItem Click="Save_Playlist" Header="_Save Playlist" />
-                <MenuItem  Header="_Delete this Playlist" />
+            </MenuItem>
+            <MenuItem Header="_Lecture">
+                <MenuItem Click="normal_lecture" Header="_Lecture normal"/>
+                <MenuItem Click="Starred_playlist" Header="_Lire vos musiques préféré"/>
+                <MenuItem Click="UnStarred_playlist" Header="_Lire les musiques peu écouté"/>
             </MenuItem>
         </Menu>
         <TabControl Margin="0,22,0,0">

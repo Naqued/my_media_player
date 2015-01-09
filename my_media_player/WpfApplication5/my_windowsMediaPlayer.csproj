@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="HttpRequest.cs" />
+    <Compile Include="Metaimage.cs" />
     <Compile Include="Song.cs" />
     <Page Include="Bibliotheque.xaml">
       <SubType>Designer</SubType>
